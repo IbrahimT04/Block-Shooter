@@ -9,8 +9,8 @@ import random
 
 score = 0
 
-nScreenWidth = 225  # 450
-nScreenHeight = 150  # 300
+nScreenWidth = 225
+nScreenHeight = 150
 nMapWidth = 16
 nMapHeight = 16
 
@@ -75,10 +75,6 @@ class Enemy:
             self.x = x_new
         if g_map[int(self.x) + nMapWidth * int(y_new)] != '#':
             self.y = y_new
-
-    def __str__(self):
-        for i in Enemy.enemies:
-            print(i.level, i.x, i.y)
 
 
 class Bullet:
@@ -211,18 +207,7 @@ def main():
     tp2 = time.time()
 
     if elapsedTime == 0:
-        """temp_storage = []
-        my_enemies = Enemy.enemies
-        for i in range(len(my_enemies)):
-            for j in range(len(my_enemies)):
-                if i != j and int(my_enemies[i].x) == int(my_enemies[j].x) and int(my_enemies[i].y) == int(my_enemies[j].y):
-                    temp_storage.append(my_enemies[i])
-                    temp_storage.append(my_enemies[j])
-                    update_map(int(my_enemies[i].x), int(my_enemies[i].y), 1)"""
         Enemy.enemies = []
-        """for i in temp_storage:
-            Enemy.enemies.append(i)"""
-
         create_enemies()
 
     elapsedTime = tp2 - tp1
