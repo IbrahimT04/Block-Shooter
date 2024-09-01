@@ -1,5 +1,5 @@
-"""Made my Ibrahim Tariq from Ontario, Canada.
-Inspired by One Lone Coder"""
+""" Made my Ibrahim Tariq from Ontario, Canada.
+Inspired by One Lone Coder """
 
 import math
 import time
@@ -9,8 +9,6 @@ import random
 
 score = 0
 
-nScreenWidth = 225
-nScreenHeight = 150
 nMapWidth = 16
 nMapHeight = 16
 
@@ -47,8 +45,6 @@ g_map += "################"
 
 tp1 = time.time()
 tp2 = time.time()
-screen = [[() for i in range(nScreenHeight)] for j in range(nScreenWidth)]
-bullets = []
 
 
 class Enemy:
@@ -356,7 +352,7 @@ def main():
 
     if (g_map[int(fPlayerX) + nMapWidth * int(fPlayerY)] == "*"
             or g_map[int(fPlayerX) + nMapWidth * int(fPlayerY)] == "+"
-            or g_map[int(fPlayerX) + nMapWidth * int(fPlayerY)] == "=" ):
+            or g_map[int(fPlayerX) + nMapWidth * int(fPlayerY)] == "="):
         run = False
     elif g_map[int(fPlayerX + 0.5) + nMapWidth * int(fPlayerY + 0.5)] == "$":
         win = True
@@ -476,7 +472,7 @@ def look(angle):
 
 
 def event_checker(events):
-    global run, s_left, s_right, left, right, forward, back, escape, zoom, scope
+    global run, s_left, s_right, left, right, forward, back, escape, zoom, scope, resized
     for event in events:
         if event.type == pygame.QUIT:
             run = False
@@ -491,8 +487,10 @@ def event_checker(events):
                 scope = 0
                 zoom = False
         elif event.type == pygame.KEYDOWN or event.type == pygame.KEYUP:
-            if event.key == pygame.K_ESCAPE:
+            if event.key == pygame.K_ESCAPE and event.type == pygame.KEYDOWN:
                 escape = not escape
+            if event.key == pygame.K_TAB and event.type == pygame.KEYDOWN:
+                resized = True
             if event.key == pygame.K_LEFT or event.key == pygame.K_a:
                 left = not left
             if event.key == pygame.K_RIGHT or event.key == pygame.K_d:
@@ -518,7 +516,14 @@ def add_bullet():
 
 
 pygame.init()
-screen2 = pygame.display.set_mode((nScreenWidth * 4, nScreenHeight * 4))
+
+screen2 = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+nFullScreenWidth, nFullScreenHeight = screen2.get_size()
+nScreenWidth = int(nFullScreenWidth / 4)
+nScreenHeight = int(nFullScreenHeight / 4)
+
+screen = [[() for i in range(nScreenHeight)] for j in range(nScreenWidth)]
+bullets = []
 
 pygame.mouse.set_cursor(pygame.cursors.broken_x)
 
@@ -537,6 +542,7 @@ textScore.topright = (nScreenWidth * 4 - 160, 10)
 textMag = text.get_rect()
 textMag.bottomright = (nScreenWidth * 4 - 40, nScreenHeight * 4)
 
+resized = True
 load_enemy = False
 zoom = False
 s_left = False
@@ -574,6 +580,20 @@ while run:
         if pos != center:
             look(pos)
             pygame.mouse.set_pos(center)
+    if resized:
+        if nScreenWidth != 225 and nScreenHeight != 150:
+            nScreenWidth = 225
+            nScreenHeight = 150
+            screen2 = pygame.display.set_mode((nScreenWidth * 4, nScreenHeight * 4))
+        else:
+            screen2 = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+            nScreenWidth = int(nFullScreenWidth / 4)
+            nScreenHeight = int(nFullScreenHeight / 4)
+        center = (nScreenWidth * 2, nScreenHeight * 2)
+        textRect.center = center
+        textScore.topright = (nScreenWidth * 4 - 160, 10)
+        textMag.bottomright = (nScreenWidth * 4 - 60, nScreenHeight * 4)
+        resized = False
 
     pygame.mouse.set_visible(escape)
 
