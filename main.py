@@ -432,29 +432,33 @@ def move(direction):
         fPlayerA -= (fSpeed * 1.00) * elapsedTime
     elif direction == 's_right':
         fPlayerA += (fSpeed * 1.00) * elapsedTime
-    elif direction == 'right':
+        elif direction == 'right':
         fPlayerY += cos(fPlayerA) * fSpeed * elapsedTime
-        fPlayerX -= sin(fPlayerA) * fSpeed * elapsedTime
         if g_map[int(fPlayerX) + nMapWidth * int(fPlayerY)] == '#':
             fPlayerY -= cos(fPlayerA) * fSpeed * elapsedTime
+        fPlayerX -= sin(fPlayerA) * fSpeed * elapsedTime
+        if g_map[int(fPlayerX) + nMapWidth * int(fPlayerY)] == '#':
             fPlayerX += sin(fPlayerA) * fSpeed * elapsedTime
     elif direction == 'left':
         fPlayerY -= cos(fPlayerA) * fSpeed * elapsedTime
-        fPlayerX += sin(fPlayerA) * fSpeed * elapsedTime
         if g_map[int(fPlayerX) + nMapWidth * int(fPlayerY)] == '#':
             fPlayerY += cos(fPlayerA) * fSpeed * elapsedTime
+        fPlayerX += sin(fPlayerA) * fSpeed * elapsedTime
+        if g_map[int(fPlayerX) + nMapWidth * int(fPlayerY)] == '#':
             fPlayerX -= sin(fPlayerA) * fSpeed * elapsedTime
     elif direction == 'forward':
         fPlayerX += cos(fPlayerA) * fSpeed * elapsedTime
-        fPlayerY += sin(fPlayerA) * fSpeed * elapsedTime
         if g_map[int(fPlayerX) + nMapWidth * int(fPlayerY)] == '#':
             fPlayerX -= cos(fPlayerA) * fSpeed * elapsedTime
+        fPlayerY += sin(fPlayerA) * fSpeed * elapsedTime
+        if g_map[int(fPlayerX) + nMapWidth * int(fPlayerY)] == '#':
             fPlayerY -= sin(fPlayerA) * fSpeed * elapsedTime
     elif direction == 'back':
         fPlayerX -= cos(fPlayerA) * fSpeed * elapsedTime
-        fPlayerY -= sin(fPlayerA) * fSpeed * elapsedTime
         if g_map[int(fPlayerX) + nMapWidth * int(fPlayerY)] == '#':
             fPlayerX += cos(fPlayerA) * fSpeed * elapsedTime
+        fPlayerY -= sin(fPlayerA) * fSpeed * elapsedTime
+        if g_map[int(fPlayerX) + nMapWidth * int(fPlayerY)] == '#':
             fPlayerY += sin(fPlayerA) * fSpeed * elapsedTime
 
 
