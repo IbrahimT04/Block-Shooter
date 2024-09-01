@@ -432,7 +432,7 @@ def move(direction):
         fPlayerA -= (fSpeed * 1.00) * elapsedTime
     elif direction == 's_right':
         fPlayerA += (fSpeed * 1.00) * elapsedTime
-        elif direction == 'right':
+    elif direction == 'right':
         fPlayerY += cos(fPlayerA) * fSpeed * elapsedTime
         if g_map[int(fPlayerX) + nMapWidth * int(fPlayerY)] == '#':
             fPlayerY -= cos(fPlayerA) * fSpeed * elapsedTime
