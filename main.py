@@ -18,7 +18,7 @@ fPlayerA = math.pi
 fFOV = math.pi / 4.0
 fDepth = 16.0
 fSpeed = 2.0
-fEnemySpeed = 0.25
+fEnemySpeed = 0.5
 fBulletSpeed = 7
 elapsedTime = 0
 agro_range = 10
@@ -67,9 +67,9 @@ class Enemy:
         multiplier = 2 if self.level == 1 else 1
         x_new = self.x + v_x * fSpeed * elapsedTime * fEnemySpeed * multiplier
         y_new = self.y + v_y * fSpeed * elapsedTime * fEnemySpeed * multiplier
-        if g_map[int(x_new) + nMapWidth * int(self.y)] != '#':
+        if g_map[int(x_new) + nMapWidth * int(self.y)] != '#' and abs(x_new - self.x) <= 1:
             self.x = x_new
-        if g_map[int(self.x) + nMapWidth * int(y_new)] != '#':
+        if g_map[int(self.x) + nMapWidth * int(y_new)] != '#' and abs(y_new - self.y) <= 1:
             self.y = y_new
 
 
@@ -163,7 +163,6 @@ def display_map():
                     color = (200, 0, 0)
 
             screen[i + int(h_indent * size)][j + int(v_indent * size)] = color
-    pass
 
 
 def create_enemies():
@@ -337,6 +336,7 @@ def main():
                 color = (0, 0, shade)
 
             screen[x][y] = color
+            
     for i in range(fBulletSpeed):
         for bul in bullets:
             x, y, z = bul.x, bul.y, bul.z
@@ -556,7 +556,22 @@ run = True
 win = False
 
 while run:
-    main()
+    if resized:
+        if nScreenWidth != 225 and nScreenHeight != 150:
+            nScreenWidth = 225
+            nScreenHeight = 150
+            screen2 = pygame.display.set_mode((nScreenWidth * 4, nScreenHeight * 4))
+        else:
+            screen2 = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+            nScreenWidth = int(nFullScreenWidth / 4)
+            nScreenHeight = int(nFullScreenHeight / 4)
+        center = (nScreenWidth * 2, nScreenHeight * 2)
+        textRect.center = center
+        textScore.topright = (nScreenWidth * 4 - 160, 10)
+        textMag.bottomright = (nScreenWidth * 4 - 60, nScreenHeight * 4)
+        resized = False
+    else:
+        main()
     if s_left:
         move('s_left')
     if s_right:
@@ -580,20 +595,6 @@ while run:
         if pos != center:
             look(pos)
             pygame.mouse.set_pos(center)
-    if resized:
-        if nScreenWidth != 225 and nScreenHeight != 150:
-            nScreenWidth = 225
-            nScreenHeight = 150
-            screen2 = pygame.display.set_mode((nScreenWidth * 4, nScreenHeight * 4))
-        else:
-            screen2 = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
-            nScreenWidth = int(nFullScreenWidth / 4)
-            nScreenHeight = int(nFullScreenHeight / 4)
-        center = (nScreenWidth * 2, nScreenHeight * 2)
-        textRect.center = center
-        textScore.topright = (nScreenWidth * 4 - 160, 10)
-        textMag.bottomright = (nScreenWidth * 4 - 60, nScreenHeight * 4)
-        resized = False
 
     pygame.mouse.set_visible(escape)
 
