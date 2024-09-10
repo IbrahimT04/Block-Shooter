@@ -9,6 +9,14 @@ import random
 
 score = 0
 
+# For Pixel Size Graphics Settings
+# Low Graphics = 15
+# Medium Graphics = 8
+# High Graphics = 4
+# Ultra Graphics = 3
+# Max Graphics = 2
+pixel_size = 8
+
 nMapWidth = 16
 nMapHeight = 16
 
@@ -25,6 +33,11 @@ agro_range = 10
 
 scope = 0
 vertical_angle = 0
+
+h_indent = 2
+v_indent = 2
+buffer = 2
+map_size = 4
 
 g_map = "#######$$#######"
 g_map += "#*+.#.*+.......#"
@@ -135,11 +148,7 @@ def check_collisions(x, y, z=0.0):
 
 def display_map():
     global screen, fPlayerA, fFOV, g_map
-    h_indent = 2
-    v_indent = 2
-    buffer = 2
-    size = 2
-
+    size = map_size / math.sqrt(pixel_size) if pixel_size < 5 else map_size * 4/pixel_size
     for i in range(int(size * (-buffer)), int(size * (nMapWidth + buffer))):
         for j in range(int(size * (-buffer)), int(size * (nMapHeight + buffer))):
             color = 255, 255, 255
@@ -336,7 +345,7 @@ def main():
                 color = (0, 0, shade)
 
             screen[x][y] = color
-            
+
     for i in range(fBulletSpeed):
         for bul in bullets:
             x, y, z = bul.x, bul.y, bul.z
@@ -360,7 +369,7 @@ def main():
 
     for y in range(0, nScreenHeight):
         for x in range(0, nScreenWidth):
-            pixel = pygame.Rect((x * 4, y * 4, 4, 4))
+            pixel = pygame.Rect((x * pixel_size, y * pixel_size, pixel_size, pixel_size))
             pygame.draw.rect(screen2, rgb(screen[x][y]), pixel)
 
 
@@ -393,11 +402,11 @@ def display_bullets():
 
         cross_z = VectorX_b * VectorY_p - VectorX_p * VectorY_b
         vertical_theta = math.atan(VectorZ_b / VectorB_len_xy) - VectorZ_p if VectorB_len_xy > 0.005 else 0.0
-        buffer = 0
+        cross_buffer = 0
         theta = 0.0
 
         if VectorB_len_xy > 1.0:
-            buffer = 20.0 / VectorB_len_xy + 3.0 + scope / 2
+            cross_buffer = 20.0 / VectorB_len_xy + 3.0 + scope / 2
             sin_theta = cross_z / VectorB_len_xy
             if abs(sin_theta) > 0.9995:
                 theta = math.pi / 2
@@ -407,15 +416,15 @@ def display_bullets():
         if abs(theta) < fFOV / 2.0 and abs(vertical_theta) < vertical_fov / 2.0:
             hor_cord = nScreenWidth / 2.0 - theta * nScreenWidth / fFOV
             ver_cord = nScreenHeight / 2.0 - vertical_theta * nScreenHeight / vertical_fov
-            for i in range(int(ver_cord - buffer), int(ver_cord + buffer)):
-                for j in range(int(hor_cord - buffer), int(hor_cord + buffer)):
+            for i in range(int(ver_cord - cross_buffer), int(ver_cord + cross_buffer)):
+                for j in range(int(hor_cord - cross_buffer), int(hor_cord + cross_buffer)):
                     dis = math.sqrt((i - ver_cord) ** 2 + (j - hor_cord) ** 2)
-                    if dis <= buffer / 2.0 and 0 < j < nScreenWidth and 0 < i < nScreenHeight:
+                    if dis <= cross_buffer / 2.0 and 0 < j < nScreenWidth and 0 < i < nScreenHeight:
                         if VectorB_len_xy < 2.0:
                             screen[j][i] = (255, 255, 0)
                         elif dis > 5.0:
                             screen[j][i] = (255, random.randint(100, 255), 0)
-                        elif dis < buffer / 4.0:
+                        elif dis < cross_buffer / 4.0:
                             screen[j][i] = (200, 125, 0)
                         else:
                             screen[j][i] = (150, 90, 0)
@@ -463,11 +472,11 @@ def look(angle):
     diff = angle[0] - center[0]
     v_diff = angle[1] - center[1]
     if abs(diff) != 0:
-        fPlayerA += (fSpeed * 0.80) * elapsedTime * diff / 30
+        fPlayerA += (fSpeed * 0.80) * elapsedTime * diff * pixel_size / 120
     if abs(v_diff) != 0:
-        vertical_angle -= (fSpeed * 0.80) * elapsedTime * v_diff
+        vertical_angle -= (fSpeed * 0.80) * elapsedTime * v_diff * pixel_size / 4
         if vertical_angle > 100 or vertical_angle < -100:
-            vertical_angle += (fSpeed * 0.80) * elapsedTime * v_diff
+            vertical_angle += (fSpeed * 0.80) * elapsedTime * v_diff * pixel_size / 4
             # +100 to -100 units == +0.6877944 to - 0.6877944 radians
 
 
@@ -519,8 +528,8 @@ pygame.init()
 
 screen2 = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 nFullScreenWidth, nFullScreenHeight = screen2.get_size()
-nScreenWidth = int(nFullScreenWidth / 4)
-nScreenHeight = int(nFullScreenHeight / 4)
+nScreenWidth = int(nFullScreenWidth / pixel_size)
+nScreenHeight = int(nFullScreenHeight / pixel_size)
 
 screen = [[() for i in range(nScreenHeight)] for j in range(nScreenWidth)]
 bullets = []
@@ -531,16 +540,16 @@ white = (255, 255, 255)
 green = (0, 255, 0)
 blue = (0, 0, 128)
 
-center = (nScreenWidth * 2, nScreenHeight * 2)
+center = (int(nScreenWidth * pixel_size/2), int(nScreenHeight * pixel_size/2))
 
 font = pygame.font.Font('freesansbold.ttf', 32)
 text = font.render('+', True, white)
 textRect = text.get_rect()
 textRect.center = center
 textScore = text.get_rect()
-textScore.topright = (nScreenWidth * 4 - 160, 10)
+textScore.topright = (nScreenWidth * pixel_size - 160, 10)
 textMag = text.get_rect()
-textMag.bottomright = (nScreenWidth * 4 - 40, nScreenHeight * 4)
+textMag.bottomright = (nScreenWidth * pixel_size - 40, nScreenHeight * pixel_size)
 
 resized = True
 load_enemy = False
@@ -557,18 +566,18 @@ win = False
 
 while run:
     if resized:
-        if nScreenWidth != 225 and nScreenHeight != 150:
-            nScreenWidth = 225
-            nScreenHeight = 150
-            screen2 = pygame.display.set_mode((nScreenWidth * 4, nScreenHeight * 4))
+        if nScreenWidth != int(225 * 4/pixel_size) and nScreenHeight != int(150 * 4/pixel_size):
+            nScreenWidth = int(225 * 4/pixel_size)
+            nScreenHeight = int(150 * 4/pixel_size)
+            screen2 = pygame.display.set_mode((nScreenWidth * pixel_size, nScreenHeight * pixel_size))
         else:
             screen2 = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
-            nScreenWidth = int(nFullScreenWidth / 4)
-            nScreenHeight = int(nFullScreenHeight / 4)
-        center = (nScreenWidth * 2, nScreenHeight * 2)
+            nScreenWidth = int(nFullScreenWidth / pixel_size)
+            nScreenHeight = int(nFullScreenHeight / pixel_size)
+        center = (int(nScreenWidth * pixel_size/2), int(nScreenHeight * pixel_size/2))
         textRect.center = center
-        textScore.topright = (nScreenWidth * 4 - 160, 10)
-        textMag.bottomright = (nScreenWidth * 4 - 60, nScreenHeight * 4)
+        textScore.topright = (nScreenWidth * pixel_size - 160, 10)
+        textMag.bottomright = (nScreenWidth * pixel_size - 60, nScreenHeight * pixel_size)
         resized = False
     else:
         main()
