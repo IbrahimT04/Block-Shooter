@@ -1,5 +1,4 @@
-""" Made my Ibrahim Tariq from Ontario, Canada.
-Inspired by One Lone Coder """
+""" Made my Ibrahim Tariq from Ontario, Canada. """
 
 import math
 import time
