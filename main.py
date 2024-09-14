@@ -38,6 +38,7 @@ v_indent = 2
 buffer = 2
 map_size = 4
 
+
 g_map = "#######$$#######"
 g_map += "#*+.#.*+.......#"
 g_map += "#...#########..#"
@@ -55,6 +56,7 @@ g_map += "#.*..#.........#"
 g_map += "#....#.........#"
 g_map += "################"
 
+
 tp1 = time.time()
 tp2 = time.time()
 
@@ -71,9 +73,9 @@ class Enemy:
     def update(self, player_x, player_y):
         x_diff = player_x - self.x
         y_diff = player_y - self.y
-        dist = math.sqrt(x_diff**2 + y_diff**2)
+        dist = math.sqrt(x_diff ** 2 + y_diff ** 2)
         if dist < agro_range:
-            self.move(x_diff/dist, y_diff/dist)
+            self.move(x_diff / dist, y_diff / dist)
 
     def move(self, v_x, v_y):
         multiplier = 2 if self.level == 1 else 1
@@ -147,28 +149,40 @@ def check_collisions(x, y, z=0.0):
 
 def display_map():
     global screen, fPlayerA, fFOV, g_map
-    size = map_size / math.sqrt(pixel_size) if pixel_size < 5 else map_size * 4/pixel_size
+    size = map_size / math.sqrt(pixel_size) if pixel_size < 5 else map_size * 4 / pixel_size
+    my_look_x = round(4 * cos(fPlayerA)) + int(fPlayerX)
+    my_look_y = round(4 * sin(fPlayerA)) + int(fPlayerY)
+
     for i in range(int(size * (-buffer)), int(size * (nMapWidth + buffer))):
         for j in range(int(size * (-buffer)), int(size * (nMapHeight + buffer))):
-            color = 255, 255, 255
             if i < 0 or j < 0 or i >= nMapWidth * size or j >= nMapHeight * size:
-                color = (50, 20, 80)
+                color = 50, 20, 80
             else:
                 my_char = g_map[int(i / size) + nMapWidth * int(j / size)]
                 if i // size == int(fPlayerX) and j // size == int(fPlayerY):
-                    color = (0, 255, 0)
-                elif my_char == ".":
-                    color = (0, 0, 100)
+                    color = 0, 255, 0
                 elif my_char == "#":
-                    color = (200, 200, 200)
+                    color = 200, 200, 200
                 elif my_char == "$":
-                    color = (200, 200, 0)
-                elif my_char == "+":
-                    color = (200, 100, 0)
-                elif my_char == "=":
-                    color = (200, 50, 0)
-                elif my_char == "*":
-                    color = (200, 0, 0)
+                    color = 200, 200, 0
+                elif ((i // size == my_look_x or i // size == int(fPlayerX)
+                       or i // size == (3 * int(fPlayerX) + my_look_x) // 4
+                       or i // size == (int(fPlayerX) + my_look_x) // 2
+                       or i // size == (int(fPlayerX) + 3 * my_look_x) // 4)
+                        and (j // size == my_look_y or j // size == int(fPlayerY)
+                             or j // size == (3 * int(fPlayerY) + my_look_y) // 4
+                             or j // size == (int(fPlayerY) + my_look_y) // 2
+                             or j // size == (int(fPlayerY) + 3 * my_look_y) // 4)):
+                    if my_char == "+":
+                        color = 200, 100, 0
+                    elif my_char == "=":
+                        color = 200, 50, 0
+                    elif my_char == "*":
+                        color = 200, 0, 0
+                    else:
+                        color = 0, 20, 150
+                else:  # my_char == ".":
+                    color = 0, 0, 100
 
             screen[i + int(h_indent * size)][j + int(v_indent * size)] = color
 
@@ -186,7 +200,7 @@ def create_enemies():
 
 
 def erase_enemies():
-    for i in range(nMapWidth*nMapHeight):
+    for i in range(nMapWidth * nMapHeight):
         if g_map[i] == "*" or g_map[i] == "+" or g_map[i] == "=":
             update_map(i, 0, 1)
 
@@ -232,53 +246,89 @@ def main():
         fEyeX = cos(fRayAngle)
         fEyeY = sin(fRayAngle)
         x_temp = 0.0
+        delta_distX = math.sqrt(1 + (fEyeY ** 2) / (fEyeX ** 2)) if abs(fEyeX) > 0.0001 else 999999
+        delta_distY = math.sqrt(1 + (fEyeX ** 2) / (fEyeY ** 2)) if abs(fEyeY) > 0.0001 else 999999
+        mapX = int(fPlayerX)
+        mapY = int(fPlayerY)
+
+        if fEyeX < 0:
+            stepX = -1
+            sideDistX = (fPlayerX - float(mapX)) * delta_distX
+        else:
+            stepX = 1
+            sideDistX = (float(mapX + 1) - fPlayerX) * delta_distX
+        if fEyeY < 0:
+            stepY = -1
+            sideDistY = (fPlayerY - float(mapY)) * delta_distY
+        else:
+            stepY = 1
+            sideDistY = (float(mapY + 1) - fPlayerY) * delta_distY
 
         while not bHitWall and fDistanceToWall < fDepth:
-            fDistanceToWall += fStepSize
-            nTestX = int(fPlayerX + fEyeX * fDistanceToWall)
-            nTestY = int(fPlayerY + fEyeY * fDistanceToWall)
+            if sideDistX < sideDistY:
+                fDistanceToWall = sideDistX
+                mapX += stepX
+                sideDistX += delta_distX
+            else:
+                fDistanceToWall = sideDistY
+                mapY += stepY
+                sideDistY += delta_distY
 
-            if nTestX < 0 or nTestX >= nMapWidth or nTestY < 0 or nTestY >= nMapHeight:
+            if mapX < 0 or mapX >= nMapWidth or mapY < 0 or mapY >= nMapHeight:
                 bHitWall = True
                 fDistanceToWall = fDepth
             else:
-                if not bHitEnemy and not bHitShield and g_map[int(nTestX + nMapWidth * nTestY)] == '+':
+                if not bHitEnemy and not bHitShield and g_map[int(mapX + nMapWidth * mapY)] == '+':
                     tester_x = fPlayerX + fEyeX * fDistanceToWall
                     tester_y = fPlayerY + fEyeY * fDistanceToWall
-                    distance = math.sqrt((nTestX + 0.5 - tester_x) ** 2 + (nTestY + 0.5 - tester_y) ** 2)
+                    while not bHitEnemy:
 
-                    if distance <= 0.15:
-                        bHitEnemy = True
-                        fDistanceToEnemy = fDistanceToWall
+                        distance = math.sqrt((mapX + 0.5 - tester_x) ** 2 + (mapY + 0.5 - tester_y) ** 2)
 
-                elif not bHitEnemy and not bHitShield and (g_map[int(nTestX + nMapWidth * nTestY)] == '*'
-                                                           or g_map[int(nTestX + nMapWidth * nTestY)] == '='):
+                        if distance <= 0.15:
+                            bHitEnemy = True
+                            fDistanceToEnemy = math.sqrt((tester_x - fPlayerX) ** 2 + (tester_y - fPlayerY) ** 2)
+                        elif abs(tester_x - mapX) > 2.0 or abs(tester_x - mapX) > 2.0:
+                            break
+                        else:
+                            tester_x += fEyeX * fStepSize
+                            tester_y += fEyeY * fStepSize
+
+                elif not bHitEnemy and not bHitShield and (g_map[int(mapX + nMapWidth * mapY)] == '*'
+                                                           or g_map[int(mapX + nMapWidth * mapY)] == '='):
                     tester_x = fPlayerX + fEyeX * fDistanceToWall
                     tester_y = fPlayerY + fEyeY * fDistanceToWall
-                    distance = math.sqrt((nTestX + 0.5 - tester_x) ** 2 + (nTestY + 0.5 - tester_y) ** 2)
+                    while not bHitShield:
 
-                    if distance <= 0.5:
-                        bHitShield = True
-                        fDistanceToEnemy = fDistanceToWall
+                        distance = math.sqrt((mapX + 0.5 - tester_x) ** 2 + (mapY + 0.5 - tester_y) ** 2)
 
-                        # Circle calculations
-                        VectorAx, VectorAy = nTestX + 0.5 - tester_x, nTestY + 0.5 - tester_y
-                        VectorBx, VectorBy = nTestX + 0.5 - fPlayerX, nTestY + 0.5 - fPlayerY
+                        if distance <= 0.5:
+                            bHitShield = True
+                            fDistanceToEnemy = math.sqrt((tester_x - fPlayerX) ** 2 + (tester_y - fPlayerY) ** 2)
 
-                        VectorA_len = math.sqrt(VectorAx ** 2 + VectorAy ** 2)
-                        VectorB_len = math.sqrt(VectorBx ** 2 + VectorBy ** 2)
+                            # Circle calculations
+                            VectorAx, VectorAy = mapX + 0.5 - tester_x, mapY + 0.5 - tester_y
+                            VectorBx, VectorBy = mapX + 0.5 - fPlayerX, mapY + 0.5 - fPlayerY
 
-                        theta = math.acos((VectorAx * VectorBx + VectorAy * VectorBy) / (VectorA_len * VectorB_len))
-                        x_temp = sin(theta) * VectorA_len
+                            VectorA_len = math.sqrt(VectorAx ** 2 + VectorAy ** 2)
+                            VectorB_len = math.sqrt(VectorBx ** 2 + VectorBy ** 2)
 
-                elif g_map[int(nTestX + nMapWidth * nTestY)] == '#':
+                            theta = math.acos((VectorAx * VectorBx + VectorAy * VectorBy) / (VectorA_len * VectorB_len))
+                            x_temp = sin(theta) * VectorA_len
+                        elif abs(tester_x - mapX) > 2.0 or abs(tester_x - mapX) > 2.0:
+                            break
+                        else:
+                            tester_x += fEyeX * fStepSize
+                            tester_y += fEyeY * fStepSize
+
+                if g_map[int(mapX + nMapWidth * mapY)] == '#':
                     bHitWall = True
                     p = []
 
                     for tx in range(0, 2):
                         for ty in range(0, 2):
-                            vx = float(nTestX + tx - fPlayerX)
-                            vy = float(nTestY + ty - fPlayerY)
+                            vx = float(mapX + tx - fPlayerX)
+                            vy = float(mapY + ty - fPlayerY)
                             d = math.sqrt(vx * vx + vy * vy)
                             dot = (fEyeX * vx / d) + (fEyeY * vy / d)
                             p.append([d, dot])
@@ -370,6 +420,7 @@ def main():
         for x in range(0, nScreenWidth):
             pixel = pygame.Rect((x * pixel_size, y * pixel_size, pixel_size, pixel_size))
             pygame.draw.rect(screen2, rgb(screen[x][y]), pixel)
+    print(1 / elapsedTime if elapsedTime != 0.0 else 0)
 
 
 def rgb(color):
@@ -539,7 +590,7 @@ white = (255, 255, 255)
 green = (0, 255, 0)
 blue = (0, 0, 128)
 
-center = (int(nScreenWidth * pixel_size/2), int(nScreenHeight * pixel_size/2))
+center = (int(nScreenWidth * pixel_size / 2), int(nScreenHeight * pixel_size / 2))
 
 font = pygame.font.Font('freesansbold.ttf', 32)
 text = font.render('+', True, white)
@@ -565,15 +616,15 @@ win = False
 
 while run:
     if resized:
-        if nScreenWidth != int(225 * 4/pixel_size) and nScreenHeight != int(150 * 4/pixel_size):
-            nScreenWidth = int(225 * 4/pixel_size)
-            nScreenHeight = int(150 * 4/pixel_size)
+        if nScreenWidth != int(225 * 4 / pixel_size) and nScreenHeight != int(150 * 4 / pixel_size):
+            nScreenWidth = int(225 * 4 / pixel_size)
+            nScreenHeight = int(150 * 4 / pixel_size)
             screen2 = pygame.display.set_mode((nScreenWidth * pixel_size, nScreenHeight * pixel_size))
         else:
             screen2 = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
             nScreenWidth = int(nFullScreenWidth / pixel_size)
             nScreenHeight = int(nFullScreenHeight / pixel_size)
-        center = (int(nScreenWidth * pixel_size/2), int(nScreenHeight * pixel_size/2))
+        center = (int(nScreenWidth * pixel_size / 2), int(nScreenHeight * pixel_size / 2))
         textRect.center = center
         textScore.topright = (nScreenWidth * pixel_size - 160, 10)
         textMag.bottomright = (nScreenWidth * pixel_size - 60, nScreenHeight * pixel_size)
