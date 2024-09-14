@@ -106,7 +106,9 @@ class Bullet:
 def update_map(x, y, status):
     global g_map
     temp_map = list(g_map)
-    if status == 4:
+    if status == -1:
+        temp_map[x + nMapWidth * y] = "-"
+    elif status == 4:
         temp_map[x + nMapWidth * y] = "="
     elif status == 3:
         temp_map[x + nMapWidth * y] = "*"
@@ -150,38 +152,37 @@ def check_collisions(x, y, z=0.0):
 def display_map():
     global screen, fPlayerA, fFOV, g_map
     size = map_size / math.sqrt(pixel_size) if pixel_size < 5 else map_size * 4 / pixel_size
-    my_look_x = round(4 * cos(fPlayerA)) + int(fPlayerX)
-    my_look_y = round(4 * sin(fPlayerA)) + int(fPlayerY)
 
     for i in range(int(size * (-buffer)), int(size * (nMapWidth + buffer))):
         for j in range(int(size * (-buffer)), int(size * (nMapHeight + buffer))):
+            color = 0, 0, 100
             if i < 0 or j < 0 or i >= nMapWidth * size or j >= nMapHeight * size:
                 color = 50, 20, 80
             else:
-                my_char = g_map[int(i / size) + nMapWidth * int(j / size)]
+                my_char = g_map[int(i // size) + nMapWidth * int(j // size)]
                 if i // size == int(fPlayerX) and j // size == int(fPlayerY):
                     color = 0, 255, 0
+                elif my_char == "+" or my_char == "=" or my_char == "*":
+                    for a in range(int(i/size - 1.0), int(i/size + 2.0)):
+                        for b in range(int(j/size - 1.0), int(j/size + 2.0)):
+                            if g_map[a + b * nMapWidth] == "-":
+                                if my_char == "+":
+                                    color = 200, 100, 0
+                                elif my_char == "=":
+                                    color = 200, 50, 0
+                                elif my_char == "*":
+                                    color = 200, 0, 0
+                                break
+                        else:
+                            continue
+                        break
                 elif my_char == "#":
                     color = 200, 200, 200
                 elif my_char == "$":
                     color = 200, 200, 0
-                elif ((i // size == my_look_x or i // size == int(fPlayerX)
-                       or i // size == (3 * int(fPlayerX) + my_look_x) // 4
-                       or i // size == (int(fPlayerX) + my_look_x) // 2
-                       or i // size == (int(fPlayerX) + 3 * my_look_x) // 4)
-                        and (j // size == my_look_y or j // size == int(fPlayerY)
-                             or j // size == (3 * int(fPlayerY) + my_look_y) // 4
-                             or j // size == (int(fPlayerY) + my_look_y) // 2
-                             or j // size == (int(fPlayerY) + 3 * my_look_y) // 4)):
-                    if my_char == "+":
-                        color = 200, 100, 0
-                    elif my_char == "=":
-                        color = 200, 50, 0
-                    elif my_char == "*":
-                        color = 200, 0, 0
-                    else:
-                        color = 0, 20, 150
-                else:  # my_char == ".":
+                elif my_char == "-":
+                    color = 0, 20, 150
+                else:
                     color = 0, 0, 100
 
             screen[i + int(h_indent * size)][j + int(v_indent * size)] = color
@@ -201,7 +202,7 @@ def create_enemies():
 
 def erase_enemies():
     for i in range(nMapWidth * nMapHeight):
-        if g_map[i] == "*" or g_map[i] == "+" or g_map[i] == "=":
+        if g_map[i] == "*" or g_map[i] == "+" or g_map[i] == "=" or g_map[i] == "-":
             update_map(i, 0, 1)
 
 
@@ -278,7 +279,9 @@ def main():
                 bHitWall = True
                 fDistanceToWall = fDepth
             else:
-                if not bHitEnemy and not bHitShield and g_map[int(mapX + nMapWidth * mapY)] == '+':
+                if g_map[int(mapX + nMapWidth * mapY)] == '.':
+                    update_map(mapX, mapY, -1)
+                elif not bHitEnemy and not bHitShield and g_map[int(mapX + nMapWidth * mapY)] == '+':
                     tester_x = fPlayerX + fEyeX * fDistanceToWall
                     tester_y = fPlayerY + fEyeY * fDistanceToWall
                     while not bHitEnemy:
