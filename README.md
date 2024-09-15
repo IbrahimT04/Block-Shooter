@@ -1,6 +1,3 @@
----
-layout: default
----
 # Complete Basic FPS
 
 Welcome to **Complete Basic FPS**, a classic, old-school first-person shooter game developed using raycasting technology. This repository showcases a basic FPS without textures, delivering a retro feel reminiscent of early FPS games. Below, you will find details on the core features, algorithms used, and the updates implemented in this project.
