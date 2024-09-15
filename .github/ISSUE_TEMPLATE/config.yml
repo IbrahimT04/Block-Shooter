@@ -1,4 +1,4 @@
-blank_issues_enabled: false
+blank_issues_enabled: true
 contact_links:
   - name: GitHub Community Support
     url: https://github.com/orgs/community/discussions
@@ -6,3 +6,7 @@ contact_links:
   - name: GitHub Security Bug Bounty
     url: https://bounty.github.com/
     about: Please report security vulnerabilities here.
+remote_theme: pages-themes/hacker@v0.2.0
+plugins:
+- jekyll-remote-theme
+title: [First Person Shooter by Ibrahim Tariq]
