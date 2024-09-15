@@ -587,7 +587,10 @@ nScreenHeight = int(nFullScreenHeight / pixel_size)
 screen = [[() for i in range(nScreenHeight)] for j in range(nScreenWidth)]
 bullets = []
 
-pygame.mouse.set_cursor(pygame.cursors.broken_x)
+try:
+    pygame.mouse.set_cursor(pygame.cursors.broken_x)
+except pygame.error:
+    print("Cursor setting is not supported in this environment")
 
 white = (255, 255, 255)
 green = (0, 255, 0)
