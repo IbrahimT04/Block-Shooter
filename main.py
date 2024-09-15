@@ -587,10 +587,24 @@ nScreenHeight = int(nFullScreenHeight / pixel_size)
 screen = [[() for i in range(nScreenHeight)] for j in range(nScreenWidth)]
 bullets = []
 
+resized = True
+load_enemy = False
+zoom = False
+s_left = False
+s_right = False
+left = False
+right = False
+forward = False
+back = False
+escape = False
+run = True
+win = False
+
 try:
     pygame.mouse.set_cursor(pygame.cursors.broken_x)
 except pygame.error:
     print("Cursor setting is not supported in this environment")
+    run = False
 
 white = (255, 255, 255)
 green = (0, 255, 0)
@@ -606,19 +620,6 @@ textScore = text.get_rect()
 textScore.topright = (nScreenWidth * pixel_size - 160, 10)
 textMag = text.get_rect()
 textMag.bottomright = (nScreenWidth * pixel_size - 40, nScreenHeight * pixel_size)
-
-resized = True
-load_enemy = False
-zoom = False
-s_left = False
-s_right = False
-left = False
-right = False
-forward = False
-back = False
-escape = False
-run = True
-win = False
 
 while run:
     if resized:
