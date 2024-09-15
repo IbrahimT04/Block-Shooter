@@ -14,7 +14,7 @@ score = 0
 # High Graphics = 4
 # Ultra Graphics = 3
 # Max Graphics = 2
-pixel_size = 8
+pixel_size = 4
 
 nMapWidth = 16
 nMapHeight = 16
@@ -267,11 +267,11 @@ def main():
 
         while not bHitWall and fDistanceToWall < fDepth:
             if sideDistX < sideDistY:
-                fDistanceToWall = sideDistX
+                fDistanceToWall = sideDistX * cos(abs(fRayAngle-fPlayerA))
                 mapX += stepX
                 sideDistX += delta_distX
             else:
-                fDistanceToWall = sideDistY
+                fDistanceToWall = sideDistY * cos(abs(fRayAngle-fPlayerA))
                 mapY += stepY
                 sideDistY += delta_distY
 
@@ -587,6 +587,7 @@ nScreenHeight = int(nFullScreenHeight / pixel_size)
 screen = [[() for i in range(nScreenHeight)] for j in range(nScreenWidth)]
 bullets = []
 
+
 resized = True
 load_enemy = False
 zoom = False
@@ -620,6 +621,7 @@ textScore = text.get_rect()
 textScore.topright = (nScreenWidth * pixel_size - 160, 10)
 textMag = text.get_rect()
 textMag.bottomright = (nScreenWidth * pixel_size - 40, nScreenHeight * pixel_size)
+
 
 while run:
     if resized:
