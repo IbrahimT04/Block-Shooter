@@ -21,7 +21,7 @@ Welcome to **Complete Basic FPS**, a classic, old-school first-person shooter ga
 
 ## Screenshots
 
-_[Add screenshots here to showcase various features such as the raycasting, DDA algorithm implementation, and fisheye correction.]_
+![comparison_image](https://github.com/user-attachments/assets/65ddfae7-6a65-43ad-adc8-65ef1b12a711)
 
 ---
 
