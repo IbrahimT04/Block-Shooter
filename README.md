@@ -22,7 +22,7 @@ Welcome to **Complete Basic FPS**, a classic, old-school first-person shooter ga
 ## Screenshots
 
 ![comparison_image](https://github.com/user-attachments/assets/65ddfae7-6a65-43ad-adc8-65ef1b12a711)
-
+![fisheye_comparison_image](https://github.com/user-attachments/assets/06c173be-279e-4bd2-8aaa-d10d1b8b02b8)
 ---
 
 ## Updates
