@@ -1,6 +1,6 @@
-# Complete Basic FPS
+# Block Shooter
 
-Welcome to **Complete Basic FPS**, a classic, old-school first-person shooter game developed using raycasting technology. This repository showcases a basic FPS without textures, delivering a retro feel reminiscent of early FPS games. Below, you will find details on the core features, algorithms used, and the updates implemented in this project.
+Welcome to **Block Shooter**, a classic, old-school first-person shooter game developed using raycasting technology. This repository showcases a basic FPS without textures, delivering a retro feel reminiscent of early FPS games. Below, you will find details on the core features, algorithms used, and the updates implemented in this project.
 
 ---
 
@@ -49,12 +49,12 @@ To run the game, follow these steps:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/IbrahimT04/CompleteBasicFPS.git
+   git clone https://github.com/IbrahimT04/BlockShooter.git
    ```
 
 2. Navigate to the project directory and run the main file:
    ```bash
-   cd CompleteBasicFPS
+   cd BlockShooter
    python3 main.py
    ```
 
