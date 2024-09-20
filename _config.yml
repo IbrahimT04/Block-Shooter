@@ -1,7 +1,7 @@
 remote_theme: pages-themes/hacker@v0.2.0
 plugins:
 - jekyll-remote-theme
-title: [First Person Shooter by Ibrahim Tariq]
+title: [Block Shooter]
 blank_issues_enabled: true
 contact_links:
   - name: GitHub Community Support
