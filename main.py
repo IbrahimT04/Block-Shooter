@@ -14,7 +14,7 @@ score = 0
 # High Graphics = 4
 # Ultra Graphics = 3
 # Max Graphics = 2
-pixel_size = 4
+pixel_size = 8
 
 nMapWidth = 16
 nMapHeight = 16
@@ -28,7 +28,7 @@ fFOV = math.pi / 4.0  # Not editable
 fDepth = 16.0
 fSpeed = 2.0
 fEnemySpeed = 0.5
-fBulletSpeed = 3
+fBulletSpeed = 5
 elapsedTime = 0  # Not editable
 agro_range = 10
 
@@ -421,6 +421,7 @@ def main():
         win = True
         run = False
 
+    # pygame.display.flip()
     for y in range(0, nScreenHeight):
         for x in range(0, nScreenWidth):
             pixel = pygame.Rect((x * pixel_size, y * pixel_size, pixel_size, pixel_size))
@@ -581,7 +582,7 @@ def add_bullet():
 
 pygame.init()
 
-screen2 = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+screen2 = pygame.display.set_mode((0, 0), pygame.FULLSCREEN | pygame.DOUBLEBUF | pygame.HWSURFACE)
 nFullScreenWidth, nFullScreenHeight = screen2.get_size()
 nScreenWidth = int(nFullScreenWidth / pixel_size)
 nScreenHeight = int(nFullScreenHeight / pixel_size)
@@ -630,9 +631,10 @@ while run:
         if nScreenWidth != int(225 * 4 / pixel_size) and nScreenHeight != int(150 * 4 / pixel_size):
             nScreenWidth = int(225 * 4 / pixel_size)
             nScreenHeight = int(150 * 4 / pixel_size)
-            screen2 = pygame.display.set_mode((nScreenWidth * pixel_size, nScreenHeight * pixel_size))
+            screen2 = pygame.display.set_mode((nScreenWidth * pixel_size, nScreenHeight * pixel_size),
+                                              pygame.DOUBLEBUF)
         else:
-            screen2 = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+            screen2 = pygame.display.set_mode((0, 0), pygame.FULLSCREEN | pygame.DOUBLEBUF | pygame.HWSURFACE)
             nScreenWidth = int(nFullScreenWidth / pixel_size)
             nScreenHeight = int(nFullScreenHeight / pixel_size)
         center = (int(nScreenWidth * pixel_size / 2), int(nScreenHeight * pixel_size / 2))
@@ -678,7 +680,7 @@ while run:
     my_mag = font.render((str(3 - len(bullets)) + "/3"), False, (0, 0, 0))
     screen2.blit(my_mag, textMag)
 
-    pygame.display.update()
+    pygame.display.flip()
 
 pygame.quit()
 
