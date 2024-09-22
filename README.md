@@ -49,12 +49,12 @@ To run the game, follow these steps:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/IbrahimT04/BlockShooter.git
+   git clone https://github.com/IbrahimT04/Block-Shooter.git
    ```
 
 2. Navigate to the project directory and run the main file:
    ```bash
-   cd BlockShooter
+   cd Block-Shooter
    python3 main.py
    ```
 
