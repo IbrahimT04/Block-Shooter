@@ -22,16 +22,18 @@ nMapHeight = 16
 fPlayerX = 8.00
 fPlayerY = 14.00
 fPlayerA = math.pi
-fFOV = math.pi / 4.0
+zoom_FOV = math.pi / 7.0
+no_zoom_FOV = math.pi / 4.0
+fFOV = math.pi / 4.0  # Not editable
 fDepth = 16.0
 fSpeed = 2.0
 fEnemySpeed = 0.5
-fBulletSpeed = 7
-elapsedTime = 0
+fBulletSpeed = 3
+elapsedTime = 0  # Not editable
 agro_range = 10
 
 scope = 0
-vertical_angle = 0
+vertical_angle = 0  # Not editable
 
 h_indent = 2
 v_indent = 2
@@ -251,7 +253,7 @@ def main():
         delta_distY = math.sqrt(1 + (fEyeX ** 2) / (fEyeY ** 2)) if abs(fEyeY) > 0.0001 else 999999
         mapX = int(fPlayerX)
         mapY = int(fPlayerY)
-
+        side = 0
         if fEyeX < 0:
             stepX = -1
             sideDistX = (fPlayerX - float(mapX)) * delta_distX
@@ -270,10 +272,12 @@ def main():
                 fDistanceToWall = sideDistX * cos(abs(fRayAngle-fPlayerA))
                 mapX += stepX
                 sideDistX += delta_distX
+                side = 1
             else:
                 fDistanceToWall = sideDistY * cos(abs(fRayAngle-fPlayerA))
                 mapY += stepY
                 sideDistY += delta_distY
+                side = 0
 
             if mapX < 0 or mapX >= nMapWidth or mapY < 0 or mapY >= nMapHeight:
                 bHitWall = True
@@ -285,9 +289,7 @@ def main():
                     tester_x = fPlayerX + fEyeX * fDistanceToWall
                     tester_y = fPlayerY + fEyeY * fDistanceToWall
                     while not bHitEnemy:
-
                         distance = math.sqrt((mapX + 0.5 - tester_x) ** 2 + (mapY + 0.5 - tester_y) ** 2)
-
                         if distance <= 0.15:
                             bHitEnemy = True
                             fDistanceToEnemy = math.sqrt((tester_x - fPlayerX) ** 2 + (tester_y - fPlayerY) ** 2)
@@ -373,28 +375,28 @@ def main():
 
             elif y == int(nCeiling):
                 if fDistanceToWall < fDepth:
-                    shade = int(fDistanceToWall * 255 / 16)
+                    shade = int(fDistanceToWall * 255 / 16) * ((1+side)/2)
                 else:
                     shade = 255
                 color = (0, 0, 255 - int(shade))
 
             elif int(nCeiling) < y < int(nFloor):
                 if fDistanceToWall < fDepth:
-                    shade = int(fDistanceToWall * 255 / 16)
+                    shade = int(fDistanceToWall * 255 / 16) * ((1+side)/2)
                 else:
                     shade = 255
-                color = (0, 0, 255 - int(shade)) if bBoundary else (0, 0, 255 - int(shade / 1.1))
+                color = (0, 0, 255 - int(shade)) if bBoundary else (0, 0, int(255/1.1) - int(shade / 1.1))
 
             elif y == int(nFloor):
                 if fDistanceToWall < fDepth:
-                    shade = int(fDistanceToWall * 255 / 16)
+                    shade = int(fDistanceToWall * 255 / 16) * ((1+side)/2)
                 else:
                     shade = 255
                 color = (0, 0, 255 - int(shade))
 
             else:
                 shade = int((1.7 + 1.7 * (vertical_angle + 50) / 200) * (y - nScreenHeight) + 255)
-                color = (0, 0, shade)
+                color = (0, 50, shade)
 
             screen[x][y] = color
 
@@ -635,7 +637,7 @@ while run:
             nScreenHeight = int(nFullScreenHeight / pixel_size)
         center = (int(nScreenWidth * pixel_size / 2), int(nScreenHeight * pixel_size / 2))
         textRect.center = center
-        textScore.topright = (nScreenWidth * pixel_size - 160, 10)
+        textScore.topright = (nScreenWidth * pixel_size - 190, 10)
         textMag.bottomright = (nScreenWidth * pixel_size - 60, nScreenHeight * pixel_size)
         resized = False
     else:
@@ -653,9 +655,9 @@ while run:
     if back:
         move('back')
     if zoom:
-        fFOV = 3.14159 / 7.0
+        fFOV = zoom_FOV
     else:
-        fFOV = 3.14159 / 4.0
+        fFOV = no_zoom_FOV
 
     pos = pygame.mouse.get_pos()
 
