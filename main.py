@@ -202,18 +202,15 @@ def create_enemies():
                 Enemy(2, i, j)
 
 
-def erase_enemies():
+def update_enemies():
+    # Erase Enemies
     for i in range(nMapWidth * nMapHeight):
         if g_map[i] == "*" or g_map[i] == "+" or g_map[i] == "=" or g_map[i] == "-":
             update_map(i, 0, 1)
-
-
-def update_enemies():
+    # Update enemy locations
     for i in Enemy.enemies:
         i.update(fPlayerX, fPlayerY)
-
-
-def print_enemies():
+    # Add Enemies to Map
     for i in Enemy.enemies:
         if g_map[int(i.x) + nMapWidth * int(i.y)] == "+" or g_map[int(i.x) + nMapWidth * int(i.y)] == "*":
             update_map(int(i.x), int(i.y), 4)
@@ -233,9 +230,7 @@ def main():
     elapsedTime = tp2 - tp1
     tp1 = tp2
 
-    erase_enemies()
     update_enemies()
-    print_enemies()
 
     for x in range(0, nScreenWidth):
         fRayAngle = (fPlayerA - fFOV / 2.0) + (float(x) / float(nScreenWidth)) * fFOV
@@ -425,12 +420,8 @@ def main():
     for y in range(0, nScreenHeight):
         for x in range(0, nScreenWidth):
             pixel = pygame.Rect((x * pixel_size, y * pixel_size, pixel_size, pixel_size))
-            pygame.draw.rect(screen2, rgb(screen[x][y]), pixel)
+            pygame.draw.rect(screen2, "#{:02x}{:02x}{:02x}".format(*screen[x][y]), pixel)
     print(1 / elapsedTime if elapsedTime != 0.0 else 0)
-
-
-def rgb(color):
-    return "#{:02x}{:02x}{:02x}".format(*color)
 
 
 def display_bullets():
@@ -539,18 +530,23 @@ def look(angle):
 def event_checker(events):
     global run, s_left, s_right, left, right, forward, back, escape, zoom, scope, resized
     for event in events:
+        # Exit
         if event.type == pygame.QUIT:
             run = False
+        # Mouse clicks
         elif event.type == pygame.MOUSEBUTTONDOWN:
+            # Right click
             if event.button == 3:
                 scope = 10
                 zoom = True
+            # Left click
             elif event.button == 1 and len(bullets) < 3:
                 add_bullet()
         elif event.type == pygame.MOUSEBUTTONUP:
             if event.button == 3:
                 scope = 0
                 zoom = False
+        # Keyboard inputs
         elif event.type == pygame.KEYDOWN or event.type == pygame.KEYUP:
             if event.key == pygame.K_ESCAPE and event.type == pygame.KEYDOWN:
                 escape = not escape
