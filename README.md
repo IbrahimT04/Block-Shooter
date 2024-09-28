@@ -1,5 +1,7 @@
 # Block Shooter
 
+**Check out the game by watching the trailer** [HERE](https://drive.google.com/file/d/1RfEXxj9UwWg27WKVhR3wSbx7ZNgHcDl0/view?usp=sharing)
+
 Welcome to **Block Shooter**, a classic, old-school first-person shooter game developed using raycasting technology. This repository showcases a basic FPS without textures, delivering a retro feel reminiscent of early FPS games. Below, you will find details on the core features, algorithms used, and the updates implemented in this project.
 
 ---
