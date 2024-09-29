@@ -267,12 +267,12 @@ def main():
                 fDistanceToWall = sideDistX * cos(abs(fRayAngle-fPlayerA))
                 mapX += stepX
                 sideDistX += delta_distX
-                side = 1
+                side = 1 - (abs(cos(fPlayerA))+0.001) / (math.pi/4.0)
             else:
                 fDistanceToWall = sideDistY * cos(abs(fRayAngle-fPlayerA))
                 mapY += stepY
                 sideDistY += delta_distY
-                side = 0
+                side = (abs(cos(fPlayerA))+0.001) / (math.pi/4.0)
 
             if mapX < 0 or mapX >= nMapWidth or mapY < 0 or mapY >= nMapHeight:
                 bHitWall = True
@@ -345,6 +345,8 @@ def main():
 
         nCeiling = float(nScreenHeight / 2.0) - (nScreenHeight / float(fDistanceToWall)) - scope + vertical_angle
         nFloor = float(nScreenHeight / 2.0) + (nScreenHeight / float(fDistanceToWall)) + scope + vertical_angle
+        nCeilingAntiAliasing = nCeiling - int(nCeiling)
+        nFloorAntiAliasing = 1 + int(nFloor) - nFloor
 
         enemy_ceiling = float(nScreenHeight / 2.0) - (nScreenHeight / float(fDistanceToEnemy)) - scope + vertical_angle
         enemy_floor = float(nScreenHeight / 2.0) + (nScreenHeight / float(fDistanceToEnemy)) + scope + vertical_angle
@@ -365,16 +367,19 @@ def main():
                 color = (random.randint(0, 255), 0, 0)
 
             elif y < int(nCeiling):
-                shade = int(255 * (nScreenHeight / 2.0) / (y + nScreenHeight / 2.0))
-                color = (int(shade / 4), 0, int(shade / 2))
+                shade = int((255 * (nScreenHeight / 2.0) / (y + nScreenHeight / 2.0))/2)
+                color = (int(shade / 2), 0, shade)
 
+            # Ceiling to Wall Anti-Aliasing
             elif y == int(nCeiling):
                 if fDistanceToWall < fDepth:
-                    shade = int(fDistanceToWall * 255 / 16) * ((1+side)/2)
+                    shadeCeiling = 255 - int((255 * (nScreenHeight / 2.0) / (y + nScreenHeight / 2.0))/2)
+                    shadeWall = int(fDistanceToWall * 255 / 16) * ((1+side)/2)
+                    shade = abs(shadeWall * (1-nCeilingAntiAliasing) + shadeCeiling * nCeilingAntiAliasing)
                 else:
                     shade = 255
-                color = (0, 0, 255 - int(shade))
-
+                color = (int(shade/5), 0, 255 - int(shade))
+                                                                 
             elif int(nCeiling) < y < int(nFloor):
                 if fDistanceToWall < fDepth:
                     shade = int(fDistanceToWall * 255 / 16) * ((1+side)/2)
@@ -382,16 +387,19 @@ def main():
                     shade = 255
                 color = (0, 0, 255 - int(shade)) if bBoundary else (0, 0, int(255/1.1) - int(shade / 1.1))
 
+            # Wall to Floor Anti-Aliasing
             elif y == int(nFloor):
                 if fDistanceToWall < fDepth:
-                    shade = int(fDistanceToWall * 255 / 16) * ((1+side)/2)
+                    shadeFloor = int(((1.7 + 1.7 * (vertical_angle + 50) / 200) * (y - nScreenHeight + 0.0) + 255)/2.0)
+                    shadeWall = 255-int(fDistanceToWall * 255 / 16) * ((1 + side) / 2)
+                    shade = abs(shadeWall * (1-nFloorAntiAliasing) + shadeFloor * nFloorAntiAliasing)
                 else:
                     shade = 255
-                color = (0, 0, 255 - int(shade))
+                color = (0, 0, int(shade))
 
             else:
-                shade = int((1.7 + 1.7 * (vertical_angle + 50) / 200) * (y - nScreenHeight) + 255)
-                color = (0, 50, shade)
+                shade = int(((1.7 + 1.7 * (vertical_angle + 50) / 200) * (y - nScreenHeight + 0.0) + 255)/2.0)
+                color = (0, 0, shade)
 
             screen[x][y] = color
 
