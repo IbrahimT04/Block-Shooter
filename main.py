@@ -9,11 +9,11 @@ import random
 score = 0
 
 # For Pixel Size Graphics Settings
-# Low Graphics = 15
-# Medium Graphics = 8
-# High Graphics = 4
-# Ultra Graphics = 3
-# Max Graphics = 2
+# ---> Low Graphics = 15
+# ---> Medium Graphics = 8
+# ---> High Graphics = 4
+# ---> Ultra Graphics = 3
+# ---> Max Graphics = 2
 pixel_size = 8
 
 nMapWidth = 16
@@ -28,7 +28,7 @@ fFOV = math.pi / 4.0  # Not editable
 fDepth = 16.0
 fSpeed = 2.0
 fEnemySpeed = 0.5
-fBulletSpeed = 5
+fBulletSpeed = 7
 elapsedTime = 0  # Not editable
 agro_range = 10
 
@@ -416,7 +416,6 @@ def main():
         win = True
         run = False
 
-    # pygame.display.flip()
     for y in range(0, nScreenHeight):
         for x in range(0, nScreenWidth):
             pixel = pygame.Rect((x * pixel_size, y * pixel_size, pixel_size, pixel_size))
@@ -437,12 +436,13 @@ def display_bullets():
         # To not see bullets through walls
         path_check = True
         fx, fy = fPlayerX, fPlayerY
+        stepX = True if abs(VectorX_b) > abs(VectorY_b) else False
         while int(fx) != int(x) and int(fy) != int(y) and 0 < fx < 16 and 0 < fy < 16:
-            if g_map[int(fx) + nMapWidth * int(fy)] != ".":
+            if g_map[int(fx) + nMapWidth * int(fy)] == "#":
                 path_check = False
                 break
-            fx += 0.1 * VectorX_b / VectorB_len_xy
-            fy += 0.1 * VectorY_b / VectorB_len_xy
+            fx += 0.25 * VectorX_b/VectorB_len_xy if stepX else 0.25 * VectorX_b / (VectorY_b * VectorB_len_xy)
+            fy += 0.25 * VectorY_b / (VectorX_b * VectorB_len_xy) if stepX else 0.25 * VectorY_b/VectorB_len_xy
 
         if not path_check:
             continue
