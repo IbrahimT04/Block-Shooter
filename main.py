@@ -26,7 +26,7 @@ zoom_FOV = math.pi / 7.0
 no_zoom_FOV = math.pi / 4.0
 fFOV = math.pi / 4.0  # Not editable
 fDepth = 16.0
-fSpeed = 2.0
+fSpeed = 3.0
 fEnemySpeed = 0.5
 fBulletSpeed = 7
 elapsedTime = 0  # Not editable
@@ -58,6 +58,25 @@ g_map += "#.*..#.........#"
 g_map += "#....#.........#"
 g_map += "################"
 
+# Test map
+"""
+g_map = "..............*."
+g_map += ".#.............."
+g_map += ".............#.."
+g_map += "................"
+g_map += "................"
+g_map += "................"
+g_map += "................"
+g_map += "................"
+g_map += "................"
+g_map += "................"
+g_map += "..#............."
+g_map += "................"
+g_map += "................"
+g_map += ".....#.........."
+g_map += "..............#."
+g_map += "................"
+"""
 
 tp1 = time.time()
 tp2 = time.time()
@@ -267,12 +286,12 @@ def main():
                 fDistanceToWall = sideDistX * cos(abs(fRayAngle-fPlayerA))
                 mapX += stepX
                 sideDistX += delta_distX
-                side = 1 - (abs(cos(fPlayerA))+0.001) / (math.pi/4.0)
+                side = 5*(sin(fPlayerA)**2)
             else:
                 fDistanceToWall = sideDistY * cos(abs(fRayAngle-fPlayerA))
                 mapY += stepY
                 sideDistY += delta_distY
-                side = (abs(cos(fPlayerA))+0.001) / (math.pi/4.0) - 0.3
+                side = 5*(cos(fPlayerA)**2)
 
             if mapX < 0 or mapX >= nMapWidth or mapY < 0 or mapY >= nMapHeight:
                 bHitWall = True
@@ -377,7 +396,7 @@ def main():
             elif y == int(nCeiling):
                 if fDistanceToWall < fDepth:
                     shadeCeiling = 255 - int((255 * (nScreenHeight / 2.0) / (y + nScreenHeight / 2.0))/2)
-                    shadeWall = int(fDistanceToWall * 255 / 16) * ((1+side)/2)
+                    shadeWall = int(fDistanceToWall * 255 / fDepth) * ((1+side)/6)
                     shade = abs(shadeWall * (1-nCeilingAntiAliasing) + shadeCeiling * nCeilingAntiAliasing)
                     color = (int(shade / 5), 0, 255 - int(shade))
                 else:
@@ -385,7 +404,7 @@ def main():
 
             elif int(nCeiling) < y < int(nFloor):
                 if fDistanceToWall < fDepth:
-                    shade = abs(int(fDistanceToWall * 255 / 16) * ((1+side)/2))
+                    shade = abs(int(fDistanceToWall * 255 / fDepth) * ((1+side)/6))
                 else:
                     shade = 255
                 color = (0, 0, 255 - int(shade)) if bBoundary else (0, 0, int(255/1.1) - int(shade / 1.1))
@@ -394,7 +413,7 @@ def main():
             elif y == int(nFloor):
                 if fDistanceToWall < fDepth:
                     shadeFloor = int(((1.7 + 1.7 * (vertical_angle + 50) / 200) * (y - nScreenHeight + 0.0) + 255)/2.0)
-                    shadeWall = 255-int(fDistanceToWall * 255 / 16) * ((1 + side) / 2)
+                    shadeWall = 255-int(fDistanceToWall * 255 / fDepth) * ((1 + side) / 6)
                     shade = abs(shadeWall * (1-nFloorAntiAliasing) + shadeFloor * nFloorAntiAliasing)
                 else:
                     shade = 0
