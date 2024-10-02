@@ -272,7 +272,7 @@ def main():
                 fDistanceToWall = sideDistY * cos(abs(fRayAngle-fPlayerA))
                 mapY += stepY
                 sideDistY += delta_distY
-                side = (abs(cos(fPlayerA))+0.001) / (math.pi/4.0)
+                side = (abs(cos(fPlayerA))+0.001) / (math.pi/4.0) - 0.3
 
             if mapX < 0 or mapX >= nMapWidth or mapY < 0 or mapY >= nMapHeight:
                 bHitWall = True
@@ -345,6 +345,9 @@ def main():
 
         nCeiling = float(nScreenHeight / 2.0) - (nScreenHeight / float(fDistanceToWall)) - scope + vertical_angle
         nFloor = float(nScreenHeight / 2.0) + (nScreenHeight / float(fDistanceToWall)) + scope + vertical_angle
+        if fDistanceToWall >= fDepth:
+            nCeiling = int(nScreenHeight / 2.0) + vertical_angle
+            nFloor = int(nScreenHeight / 2.0) + vertical_angle
         nCeilingAntiAliasing = nCeiling - int(nCeiling)
         nFloorAntiAliasing = 1 + int(nFloor) - nFloor
 
@@ -376,13 +379,13 @@ def main():
                     shadeCeiling = 255 - int((255 * (nScreenHeight / 2.0) / (y + nScreenHeight / 2.0))/2)
                     shadeWall = int(fDistanceToWall * 255 / 16) * ((1+side)/2)
                     shade = abs(shadeWall * (1-nCeilingAntiAliasing) + shadeCeiling * nCeilingAntiAliasing)
+                    color = (int(shade / 5), 0, 255 - int(shade))
                 else:
-                    shade = 255
-                color = (int(shade/5), 0, 255 - int(shade))
-                                                                 
+                    color = (0, 0, 0)
+
             elif int(nCeiling) < y < int(nFloor):
                 if fDistanceToWall < fDepth:
-                    shade = int(fDistanceToWall * 255 / 16) * ((1+side)/2)
+                    shade = abs(int(fDistanceToWall * 255 / 16) * ((1+side)/2))
                 else:
                     shade = 255
                 color = (0, 0, 255 - int(shade)) if bBoundary else (0, 0, int(255/1.1) - int(shade / 1.1))
@@ -394,7 +397,7 @@ def main():
                     shadeWall = 255-int(fDistanceToWall * 255 / 16) * ((1 + side) / 2)
                     shade = abs(shadeWall * (1-nFloorAntiAliasing) + shadeFloor * nFloorAntiAliasing)
                 else:
-                    shade = 255
+                    shade = 0
                 color = (0, 0, int(shade))
 
             else:
@@ -420,7 +423,7 @@ def main():
             or g_map[int(fPlayerX) + nMapWidth * int(fPlayerY)] == "+"
             or g_map[int(fPlayerX) + nMapWidth * int(fPlayerY)] == "="):
         run = False
-    elif g_map[int(fPlayerX + 0.5) + nMapWidth * int(fPlayerY + 0.5)] == "$":
+    elif g_map[int(fPlayerX) + nMapWidth * int(fPlayerY)] == "$":
         win = True
         run = False
 
@@ -488,6 +491,14 @@ def display_bullets():
 def move(direction):
     global fPlayerX, fPlayerY, fPlayerA, elapsedTime, g_map, nMapWidth
 
+    if fPlayerX < 0.0:
+        fPlayerX = 0.0
+    elif fPlayerX > nMapWidth - 1.0:
+        fPlayerX = nMapWidth - 1.0
+    if fPlayerY < 0.0:
+        fPlayerY = 0.0
+    elif fPlayerY > nMapHeight - 1.0:
+        fPlayerY = nMapHeight - 1.0
     if direction == 's_left':
         fPlayerA -= (fSpeed * 1.00) * elapsedTime
     elif direction == 's_right':
