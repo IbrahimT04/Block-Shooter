@@ -43,6 +43,15 @@ Users can select the desired quality level, making the game accessible on high-e
 ### Version 1.0.2 - Full-Screen Mode
 This update added a full-screen option for an immersive gaming experience, allowing players to switch between windowed and full-screen modes.
 
+### Version 1.0.3 - Graphics Update I
+This update added new raycasting algorithms for a performance and graphics boast.
+
+### Version 1.0.4 - Graphics Update II
+This update added fisheye correction for better visuals.
+
+### Version 1.0.5 - Graphics Update III
+This update added anti-aliasing for smoother visuals.
+
 ---
 
 ## Getting Started
