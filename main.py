@@ -40,7 +40,6 @@ v_indent = 2
 buffer = 2
 map_size = 4
 
-
 g_map = "#######$$#######"
 g_map += "#*+.#.*+.......#"
 g_map += "#...#########..#"
@@ -184,8 +183,8 @@ def display_map():
                 if i // size == int(fPlayerX) and j // size == int(fPlayerY):
                     color = 0, 255, 0
                 elif my_char == "+" or my_char == "=" or my_char == "*":
-                    for a in range(int(i/size - 1.0), int(i/size + 2.0)):
-                        for b in range(int(j/size - 1.0), int(j/size + 2.0)):
+                    for a in range(int(i / size - 1.0), int(i / size + 2.0)):
+                        for b in range(int(j / size - 1.0), int(j / size + 2.0)):
                             if g_map[a + b * nMapWidth] == "-":
                                 if my_char == "+":
                                     color = 200, 100, 0
@@ -238,7 +237,8 @@ def update_enemies():
 
 
 def main():
-    global tp2, tp1, fPlayerX, fPlayerY, fPlayerA, elapsedTime, scope, vertical_angle, screen, run, win
+    global tp2, tp1, fPlayerX, fPlayerY, fPlayerA, elapsedTime, \
+        scope, vertical_angle, screen, run, win, moved, temp_screen
 
     tp2 = time.time()
 
@@ -250,181 +250,189 @@ def main():
     tp1 = tp2
 
     update_enemies()
-
-    for x in range(0, nScreenWidth):
-        fRayAngle = (fPlayerA - fFOV / 2.0) + (float(x) / float(nScreenWidth)) * fFOV
-        fStepSize = 0.1
-        fDistanceToWall = 0.0
-        bHitWall = False
-        fDistanceToEnemy = 100.0
-        bHitShield = False
-        bHitEnemy = False
-        bBoundary = False
-        fEyeX = cos(fRayAngle)
-        fEyeY = sin(fRayAngle)
-        x_temp = 0.0
-        delta_distX = math.sqrt(1 + (fEyeY ** 2) / (fEyeX ** 2)) if abs(fEyeX) > 0.0001 else 999999
-        delta_distY = math.sqrt(1 + (fEyeX ** 2) / (fEyeY ** 2)) if abs(fEyeY) > 0.0001 else 999999
-        mapX = int(fPlayerX)
-        mapY = int(fPlayerY)
-        side = 0
-        if fEyeX < 0:
-            stepX = -1
-            sideDistX = (fPlayerX - float(mapX)) * delta_distX
-        else:
-            stepX = 1
-            sideDistX = (float(mapX + 1) - fPlayerX) * delta_distX
-        if fEyeY < 0:
-            stepY = -1
-            sideDistY = (fPlayerY - float(mapY)) * delta_distY
-        else:
-            stepY = 1
-            sideDistY = (float(mapY + 1) - fPlayerY) * delta_distY
-
-        while not bHitWall and fDistanceToWall < fDepth:
-            if sideDistX < sideDistY:
-                fDistanceToWall = sideDistX * cos(abs(fRayAngle-fPlayerA))
-                mapX += stepX
-                sideDistX += delta_distX
-                side = 5*(sin(fPlayerA)**2)
+    if (not moved) and (temp_screen is not None):
+        screen = temp_screen
+    else:
+        for x in range(0, nScreenWidth):
+            fRayAngle = (fPlayerA - fFOV / 2.0) + (float(x) / float(nScreenWidth)) * fFOV
+            fStepSize = 0.1
+            fDistanceToWall = 0.0
+            bHitWall = False
+            fDistanceToEnemy = 100.0
+            bHitShield = False
+            bHitEnemy = False
+            bBoundary = False
+            fEyeX = cos(fRayAngle)
+            fEyeY = sin(fRayAngle)
+            x_temp = 0.0
+            delta_distX = math.sqrt(1 + (fEyeY ** 2) / (fEyeX ** 2)) if abs(fEyeX) > 0.0001 else 999999
+            delta_distY = math.sqrt(1 + (fEyeX ** 2) / (fEyeY ** 2)) if abs(fEyeY) > 0.0001 else 999999
+            mapX = int(fPlayerX)
+            mapY = int(fPlayerY)
+            side = 0
+            if fEyeX < 0:
+                stepX = -1
+                sideDistX = (fPlayerX - float(mapX)) * delta_distX
             else:
-                fDistanceToWall = sideDistY * cos(abs(fRayAngle-fPlayerA))
-                mapY += stepY
-                sideDistY += delta_distY
-                side = 5*(cos(fPlayerA)**2)
-
-            if mapX < 0 or mapX >= nMapWidth or mapY < 0 or mapY >= nMapHeight:
-                bHitWall = True
-                fDistanceToWall = fDepth
+                stepX = 1
+                sideDistX = (float(mapX + 1) - fPlayerX) * delta_distX
+            if fEyeY < 0:
+                stepY = -1
+                sideDistY = (fPlayerY - float(mapY)) * delta_distY
             else:
-                if g_map[int(mapX + nMapWidth * mapY)] == '.':
-                    update_map(mapX, mapY, -1)
-                elif not bHitEnemy and not bHitShield and g_map[int(mapX + nMapWidth * mapY)] == '+':
-                    tester_x = fPlayerX + fEyeX * fDistanceToWall
-                    tester_y = fPlayerY + fEyeY * fDistanceToWall
-                    while not bHitEnemy:
-                        distance = math.sqrt((mapX + 0.5 - tester_x) ** 2 + (mapY + 0.5 - tester_y) ** 2)
-                        if distance <= 0.15:
-                            bHitEnemy = True
-                            fDistanceToEnemy = math.sqrt((tester_x - fPlayerX) ** 2 + (tester_y - fPlayerY) ** 2)
-                        elif abs(tester_x - mapX) > 2.0 or abs(tester_x - mapX) > 2.0:
-                            break
-                        else:
-                            tester_x += fEyeX * fStepSize
-                            tester_y += fEyeY * fStepSize
+                stepY = 1
+                sideDistY = (float(mapY + 1) - fPlayerY) * delta_distY
 
-                elif not bHitEnemy and not bHitShield and (g_map[int(mapX + nMapWidth * mapY)] == '*'
-                                                           or g_map[int(mapX + nMapWidth * mapY)] == '='):
-                    tester_x = fPlayerX + fEyeX * fDistanceToWall
-                    tester_y = fPlayerY + fEyeY * fDistanceToWall
-                    while not bHitShield:
+            while not bHitWall and fDistanceToWall < fDepth:
+                if sideDistX < sideDistY:
+                    fDistanceToWall = sideDistX * cos(abs(fRayAngle - fPlayerA))
+                    mapX += stepX
+                    sideDistX += delta_distX
+                    side = 5 * (sin(fPlayerA) ** 2)
+                else:
+                    fDistanceToWall = sideDistY * cos(abs(fRayAngle - fPlayerA))
+                    mapY += stepY
+                    sideDistY += delta_distY
+                    side = 5 * (cos(fPlayerA) ** 2)
 
-                        distance = math.sqrt((mapX + 0.5 - tester_x) ** 2 + (mapY + 0.5 - tester_y) ** 2)
-
-                        if distance <= 0.5:
-                            bHitShield = True
-                            fDistanceToEnemy = math.sqrt((tester_x - fPlayerX) ** 2 + (tester_y - fPlayerY) ** 2)
-
-                            # Circle calculations
-                            VectorAx, VectorAy = mapX + 0.5 - tester_x, mapY + 0.5 - tester_y
-                            VectorBx, VectorBy = mapX + 0.5 - fPlayerX, mapY + 0.5 - fPlayerY
-
-                            VectorA_len = math.sqrt(VectorAx ** 2 + VectorAy ** 2)
-                            VectorB_len = math.sqrt(VectorBx ** 2 + VectorBy ** 2)
-
-                            theta = math.acos((VectorAx * VectorBx + VectorAy * VectorBy) / (VectorA_len * VectorB_len))
-                            x_temp = sin(theta) * VectorA_len
-                        elif abs(tester_x - mapX) > 2.0 or abs(tester_x - mapX) > 2.0:
-                            break
-                        else:
-                            tester_x += fEyeX * fStepSize
-                            tester_y += fEyeY * fStepSize
-
-                if g_map[int(mapX + nMapWidth * mapY)] == '#':
+                if mapX < 0 or mapX >= nMapWidth or mapY < 0 or mapY >= nMapHeight:
                     bHitWall = True
-                    p = []
-
-                    for tx in range(0, 2):
-                        for ty in range(0, 2):
-                            vx = float(mapX + tx - fPlayerX)
-                            vy = float(mapY + ty - fPlayerY)
-                            d = math.sqrt(vx * vx + vy * vy)
-                            dot = (fEyeX * vx / d) + (fEyeY * vy / d)
-                            p.append([d, dot])
-
-                    p.sort()
-                    fBound = 0.01
-
-                    if math.acos(p[0][1]) < fBound:
-                        bBoundary = True
-                    if math.acos(p[1][1]) < fBound:
-                        bBoundary = True
-                    if math.acos(p[2][1]) < fBound:
-                        bBoundary = True
-
-        nCeiling = float(nScreenHeight / 2.0) - (nScreenHeight / float(fDistanceToWall)) - scope + vertical_angle
-        nFloor = float(nScreenHeight / 2.0) + (nScreenHeight / float(fDistanceToWall)) + scope + vertical_angle
-        if fDistanceToWall >= fDepth:
-            nCeiling = int(nScreenHeight / 2.0) + vertical_angle
-            nFloor = int(nScreenHeight / 2.0) + vertical_angle
-        nCeilingAntiAliasing = nCeiling - int(nCeiling)
-        nFloorAntiAliasing = 1 + int(nFloor) - nFloor
-
-        enemy_ceiling = float(nScreenHeight / 2.0) - (nScreenHeight / float(fDistanceToEnemy)) - scope + vertical_angle
-        enemy_floor = float(nScreenHeight / 2.0) + (nScreenHeight / float(fDistanceToEnemy)) + scope + vertical_angle
-
-        enemy_radius = (enemy_ceiling - enemy_floor) / 2.0
-        middle = (enemy_ceiling + enemy_floor) / 2.0
-
-        enemy_height = math.sqrt(enemy_radius ** 2 - (x_temp * enemy_radius / 0.5) ** 2)
-
-        for y in range(0, nScreenHeight):
-            if bHitEnemy and middle - enemy_height / 2.0 < y <= middle + enemy_height / 2.0 and x_temp <= 0.1:
-                color = (255, random.randint(100, 150), 0)
-
-            elif bHitShield and middle - enemy_height / 2.0 < y <= middle + enemy_height / 2.0 and x_temp <= 0.1:
-                color = (255, random.randint(100, 150), 0)
-
-            elif bHitShield and middle - enemy_height < y <= middle + enemy_height:
-                color = (random.randint(0, 255), 0, 0)
-
-            elif y < int(nCeiling):
-                shade = int((255 * (nScreenHeight / 2.0) / (y + nScreenHeight / 2.0))/2)
-                color = (int(shade / 2), 0, shade)
-
-            # Ceiling to Wall Anti-Aliasing
-            elif y == int(nCeiling):
-                if fDistanceToWall < fDepth:
-                    shadeCeiling = 255 - int((255 * (nScreenHeight / 2.0) / (y + nScreenHeight / 2.0))/2)
-                    shadeWall = int(fDistanceToWall * 255 / fDepth) * ((1+side)/6)
-                    shade = abs(shadeWall * (1-nCeilingAntiAliasing) + shadeCeiling * nCeilingAntiAliasing)
-                    color = (int(shade / 5), 0, 255 - int(shade))
+                    fDistanceToWall = fDepth
                 else:
-                    color = (0, 0, 0)
+                    if g_map[int(mapX + nMapWidth * mapY)] == '.':
+                        update_map(mapX, mapY, -1)
+                    elif not bHitEnemy and not bHitShield and g_map[int(mapX + nMapWidth * mapY)] == '+':
+                        tester_x = fPlayerX + fEyeX * fDistanceToWall
+                        tester_y = fPlayerY + fEyeY * fDistanceToWall
+                        while not bHitEnemy:
+                            distance = math.sqrt((mapX + 0.5 - tester_x) ** 2 + (mapY + 0.5 - tester_y) ** 2)
+                            if distance <= 0.15:
+                                bHitEnemy = True
+                                fDistanceToEnemy = math.sqrt((tester_x - fPlayerX) ** 2 + (tester_y - fPlayerY) ** 2)
+                            elif abs(tester_x - mapX) > 2.0 or abs(tester_x - mapX) > 2.0:
+                                break
+                            else:
+                                tester_x += fEyeX * fStepSize
+                                tester_y += fEyeY * fStepSize
 
-            elif int(nCeiling) < y < int(nFloor):
-                if fDistanceToWall < fDepth:
-                    shade = abs(int(fDistanceToWall * 255 / fDepth) * ((1+side)/6))
+                    elif not bHitEnemy and not bHitShield and (g_map[int(mapX + nMapWidth * mapY)] == '*'
+                                                               or g_map[int(mapX + nMapWidth * mapY)] == '='):
+                        tester_x = fPlayerX + fEyeX * fDistanceToWall
+                        tester_y = fPlayerY + fEyeY * fDistanceToWall
+                        while not bHitShield:
+
+                            distance = math.sqrt((mapX + 0.5 - tester_x) ** 2 + (mapY + 0.5 - tester_y) ** 2)
+
+                            if distance <= 0.5:
+                                bHitShield = True
+                                fDistanceToEnemy = math.sqrt((tester_x - fPlayerX) ** 2 + (tester_y - fPlayerY) ** 2)
+
+                                # Circle calculations
+                                VectorAx, VectorAy = mapX + 0.5 - tester_x, mapY + 0.5 - tester_y
+                                VectorBx, VectorBy = mapX + 0.5 - fPlayerX, mapY + 0.5 - fPlayerY
+
+                                VectorA_len = math.sqrt(VectorAx ** 2 + VectorAy ** 2)
+                                VectorB_len = math.sqrt(VectorBx ** 2 + VectorBy ** 2)
+
+                                theta = math.acos(
+                                    (VectorAx * VectorBx + VectorAy * VectorBy) / (VectorA_len * VectorB_len))
+                                x_temp = sin(theta) * VectorA_len
+                            elif abs(tester_x - mapX) > 2.0 or abs(tester_x - mapX) > 2.0:
+                                break
+                            else:
+                                tester_x += fEyeX * fStepSize
+                                tester_y += fEyeY * fStepSize
+
+                    if g_map[int(mapX + nMapWidth * mapY)] == '#':
+                        bHitWall = True
+                        p = []
+
+                        for tx in range(0, 2):
+                            for ty in range(0, 2):
+                                vx = float(mapX + tx - fPlayerX)
+                                vy = float(mapY + ty - fPlayerY)
+                                d = math.sqrt(vx * vx + vy * vy)
+                                dot = (fEyeX * vx / d) + (fEyeY * vy / d)
+                                p.append([d, dot])
+
+                        p.sort()
+                        fBound = 0.01
+
+                        if math.acos(p[0][1]) < fBound:
+                            bBoundary = True
+                        if math.acos(p[1][1]) < fBound:
+                            bBoundary = True
+                        if math.acos(p[2][1]) < fBound:
+                            bBoundary = True
+
+            nCeiling = float(nScreenHeight / 2.0) - (nScreenHeight / float(fDistanceToWall)) - scope + vertical_angle
+            nFloor = float(nScreenHeight / 2.0) + (nScreenHeight / float(fDistanceToWall)) + scope + vertical_angle
+            if fDistanceToWall >= fDepth:
+                nCeiling = int(nScreenHeight / 2.0) + vertical_angle
+                nFloor = int(nScreenHeight / 2.0) + vertical_angle
+            nCeilingAntiAliasing = nCeiling - int(nCeiling)
+            nFloorAntiAliasing = 1 + int(nFloor) - nFloor
+
+            enemy_ceiling = float(nScreenHeight / 2.0) - (
+                        nScreenHeight / float(fDistanceToEnemy)) - scope + vertical_angle
+            enemy_floor = float(nScreenHeight / 2.0) + (
+                        nScreenHeight / float(fDistanceToEnemy)) + scope + vertical_angle
+
+            enemy_radius = (enemy_ceiling - enemy_floor) / 2.0
+            middle = (enemy_ceiling + enemy_floor) / 2.0
+
+            enemy_height = math.sqrt(enemy_radius ** 2 - (x_temp * enemy_radius / 0.5) ** 2)
+
+            for y in range(0, nScreenHeight):
+                if bHitEnemy and middle - enemy_height / 2.0 < y <= middle + enemy_height / 2.0 and x_temp <= 0.1:
+                    color = (255, random.randint(100, 150), 0)
+
+                elif bHitShield and middle - enemy_height / 2.0 < y <= middle + enemy_height / 2.0 and x_temp <= 0.1:
+                    color = (255, random.randint(100, 150), 0)
+
+                elif bHitShield and middle - enemy_height < y <= middle + enemy_height:
+                    color = (random.randint(0, 255), 0, 0)
+
+                elif y < int(nCeiling):
+                    shade = int((255 * (nScreenHeight / 2.0) / (y + nScreenHeight / 2.0)) / 2)
+                    color = (int(shade / 2), 0, shade)
+
+                # Ceiling to Wall Anti-Aliasing
+                elif y == int(nCeiling):
+                    if fDistanceToWall < fDepth:
+                        shadeCeiling = 255 - int((255 * (nScreenHeight / 2.0) / (y + nScreenHeight / 2.0)) / 2)
+                        shadeWall = int(fDistanceToWall * 255 / fDepth) * ((1 + side) / 6)
+                        shade = abs(shadeWall * (1 - nCeilingAntiAliasing) + shadeCeiling * nCeilingAntiAliasing)
+                        color = (int(shade / 5), 0, 255 - int(shade))
+                    else:
+                        color = (0, 0, 0)
+
+                elif int(nCeiling) < y < int(nFloor):
+                    if fDistanceToWall < fDepth:
+                        shade = abs(int(fDistanceToWall * 255 / fDepth) * ((1 + side) / 6))
+                    else:
+                        shade = 255
+                    color = (0, 0, 255 - int(shade)) if bBoundary else (0, 0, int(255 / 1.1) - int(shade / 1.1))
+
+                # Wall to Floor Anti-Aliasing
+                elif y == int(nFloor):
+                    if fDistanceToWall < fDepth:
+                        shadeFloor = int(
+                            ((1.7 + 1.7 * (vertical_angle + 50) / 200) * (y - nScreenHeight + 0.0) + 255) / 2.0)
+                        shadeWall = 255 - int(fDistanceToWall * 255 / fDepth) * ((1 + side) / 6)
+                        shade = abs(shadeWall * (1 - nFloorAntiAliasing) + shadeFloor * nFloorAntiAliasing)
+                    else:
+                        shade = 0
+                    color = (0, 0, int(shade))
+
                 else:
-                    shade = 255
-                color = (0, 0, 255 - int(shade)) if bBoundary else (0, 0, int(255/1.1) - int(shade / 1.1))
+                    shade = int(((1.7 + 1.7 * (vertical_angle + 50) / 200) * (y - nScreenHeight + 0.0) + 255) / 2.0)
+                    color = (0, 0, shade)
 
-            # Wall to Floor Anti-Aliasing
-            elif y == int(nFloor):
-                if fDistanceToWall < fDepth:
-                    shadeFloor = int(((1.7 + 1.7 * (vertical_angle + 50) / 200) * (y - nScreenHeight + 0.0) + 255)/2.0)
-                    shadeWall = 255-int(fDistanceToWall * 255 / fDepth) * ((1 + side) / 6)
-                    shade = abs(shadeWall * (1-nFloorAntiAliasing) + shadeFloor * nFloorAntiAliasing)
-                else:
-                    shade = 0
-                color = (0, 0, int(shade))
+                screen[x][y] = color
 
-            else:
-                shade = int(((1.7 + 1.7 * (vertical_angle + 50) / 200) * (y - nScreenHeight + 0.0) + 255)/2.0)
-                color = (0, 0, shade)
-
-            screen[x][y] = color
-
+    moved = False
+    temp_screen = screen
     for i in range(fBulletSpeed):
         for bul in bullets:
             x, y, z = bul.x, bul.y, bul.z
@@ -471,8 +479,8 @@ def display_bullets():
             if g_map[int(fx) + nMapWidth * int(fy)] == "#":
                 path_check = False
                 break
-            fx += 0.25 * VectorX_b/VectorB_len_xy if stepX else 0.25 * VectorX_b / (VectorY_b * VectorB_len_xy)
-            fy += 0.25 * VectorY_b / (VectorX_b * VectorB_len_xy) if stepX else 0.25 * VectorY_b/VectorB_len_xy
+            fx += 0.25 * VectorX_b / VectorB_len_xy if stepX else 0.25 * VectorX_b / (VectorY_b * VectorB_len_xy)
+            fy += 0.25 * VectorY_b / (VectorX_b * VectorB_len_xy) if stepX else 0.25 * VectorY_b / VectorB_len_xy
 
         if not path_check:
             continue
@@ -509,7 +517,6 @@ def display_bullets():
 
 def move(direction):
     global fPlayerX, fPlayerY, fPlayerA, elapsedTime, g_map, nMapWidth
-
     if fPlayerX < 0.0:
         fPlayerX = 0.0
     elif fPlayerX > nMapWidth - 1.0:
@@ -553,7 +560,8 @@ def move(direction):
 
 
 def look(angle):
-    global fPlayerA, elapsedTime, nMapWidth, center, vertical_angle
+    global fPlayerA, elapsedTime, nMapWidth, center, vertical_angle, moved
+    moved = True
     diff = angle[0] - center[0]
     v_diff = angle[1] - center[1]
     if abs(diff) != 0:
@@ -566,7 +574,7 @@ def look(angle):
 
 
 def event_checker(events):
-    global run, s_left, s_right, left, right, forward, back, escape, zoom, scope, resized
+    global run, s_left, s_right, left, right, forward, back, escape, zoom, scope, resized, moved
     for event in events:
         # Exit
         if event.type == pygame.QUIT:
@@ -586,6 +594,7 @@ def event_checker(events):
                 zoom = False
         # Keyboard inputs
         elif event.type == pygame.KEYDOWN or event.type == pygame.KEYUP:
+            moved = True
             if event.key == pygame.K_ESCAPE and event.type == pygame.KEYDOWN:
                 escape = not escape
             if event.key == pygame.K_TAB and event.type == pygame.KEYDOWN:
@@ -622,8 +631,10 @@ nScreenWidth = int(nFullScreenWidth / pixel_size)
 nScreenHeight = int(nFullScreenHeight / pixel_size)
 
 screen = [[() for i in range(nScreenHeight)] for j in range(nScreenWidth)]
+""""""
+temp_screen = None
+""""""
 bullets = []
-
 
 resized = True
 load_enemy = False
@@ -637,6 +648,8 @@ back = False
 escape = False
 run = True
 win = False
+
+moved = False
 
 try:
     pygame.mouse.set_cursor(pygame.cursors.broken_x)
@@ -658,7 +671,6 @@ textScore = text.get_rect()
 textScore.topright = (nScreenWidth * pixel_size - 160, 10)
 textMag = text.get_rect()
 textMag.bottomright = (nScreenWidth * pixel_size - 40, nScreenHeight * pixel_size)
-
 
 while run:
     if resized:
